@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chữ ký số</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <ul class="nav nav-tabs nav-tabs-bordered d-flex" id="borderedTabJustified" role="tablist">
+                            <li class="nav-item flex-fill" role="presentation">
+                                <button class="nav-link w-100 active" id="tab1" data-bs-toggle="tab"
+                                    data-bs-target="#tabTaoKhoa" type="button" role="tab" aria-controls="home"
+                                    aria-selected="true">Tạo chữ ký số</button>
+                            </li>
+                            <li class="nav-item flex-fill" role="presentation">
+                                <button class="nav-link w-100" id="tab2" data-bs-toggle="tab"
+                                    data-bs-target="#tabTaoChuKy" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">Ký số</button>
+                            </li>
+                            <li class="nav-item flex-fill" role="presentation">
+                                <button class="nav-link w-100" id="tab3" data-bs-toggle="tab"
+                                    data-bs-target="#tabXacThuc" type="button" role="tab" aria-controls="profile"
+                                    aria-selected="false">Xác thực</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-2">
+                            <div class="tab-pane fade active show" id="tabTaoKhoa">
+                                <div class="row" style="justify-content: center">
+                                    <a class="btn btn-primary col-lg-3" href="/createkey">Tạo cặp
+                                            khoá</a>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tabTaoChuKy">
+                                <form th:action="@{/digitalsignature}" method="post" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="private-key" class="form-label">Private Key</label>
+                                        <input type="file" required name="file" class="form-control" id="private-key">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="file-to-sign" class="form-label">File cần ký</label>
+                                        <input type="file" required name="file1" class="form-control" id="file-to-sign">
+                                    </div>
+                                    <div class="d-grid mb-3" style="justify-content: end">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <h2 class="text-center" th:text="${messss==true?'File private key không hợp lệ!':''}"></h2>
+                                            </div>
+                                            <div class="col-6">
+                                                <button class="btn btn-primary" type="submit">Tạo file ký số</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="tabXacThuc">
+                                <form th:action="@{/digitalsignature}" method="post" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="pubic-key" class="form-label">Public Key</label>
+                                        <input type="file" name="filePublic" class="form-control" id="pubic-key">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="file-to-verify" class="form-label">File cần xác thực</label>
+                                        <input type="file" name="fileRoot" class="form-control" id="file-to-verify">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="file-signature" class="form-label">File ký số</label>
+                                        <input type="file" name="fileSignature" class="form-control"
+                                            id="file-signature">
+                                    </div>
+                                    <div class="d-grid mb-3">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <h2 id="mess" th:text="${mess==true?'Xác thực thành công!':mess==false?'Xác thực thất bại.':''}"  th:class="${mess==true?'text-center text-success':mess==false?'text-center text-danger':''}"></h2>
+                                            </div>
+                                            <div class="col-6">
+                                                <button class="btn btn-primary float-end" type="button" id="btnconfirm">Xác
+                                                    thực</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            // alert("ok");
+            // $.ajax({
+            //     url: "/api/getWeather",
+            //     data: {
+            //         zipcode: 97201
+            //     },
+            //     success: function (result) {
+            //         $("#weather-temp").html("<strong>" + result + "</strong> degrees");
+            //     }
+            // });
+        });
+        $(document).on('click', 'button#btnconfirm', function () {
+            // alert("oke");
+            var filePublic = $("input#pubic-key")[0].files[0];
+            var fileverify = $("input#file-to-verify")[0].files[0];
+            var filesignature = $("input#file-signature")[0].files[0];
+            var data = new FormData();
+            data.append("filePublic", filePublic);
+            data.append("fileverify", fileverify);
+            data.append("fileSignature", filesignature);
+            $.ajax({
+                url: "/verifyDS",
+                method: "post",
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                data: data,
+                success: function (result) {
+                    // if (result === "oke") {
+                    //     $("h2#mess").text("Xác thực thành công!");
+                    //     $("h2#mess").addClass('text-success');
+                    // } else {
+                    //     $("h2#mess").text("Xác thực thất bại.");
+                    //     $("h2#mess").addClass('text-danger');
+                    // }
+                    $("h2#mess").replaceWith(result);
+                },
+                error: function (result) {
+                    alert("Vui lòng chọn đúng loại tệp.")
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
