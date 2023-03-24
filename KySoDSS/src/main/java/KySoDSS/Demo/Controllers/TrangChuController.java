@@ -129,18 +129,18 @@ public class TrangChuController {
         byte[] fileContent;
         byte[] fileContent1;
         byte[] data = null;
-        if (CheckPrivateKey(file.getBytes()) == null) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.addObject("messss", true);
-            modelAndView.setViewName("index");
+        // if (CheckPrivateKey(file.getBytes()) == null) {
+        //     ModelAndView modelAndView = new ModelAndView();
+        //     modelAndView.addObject("messss", true);
+        //     modelAndView.setViewName("index");
 
-            // HttpHeaders headers = new HttpHeaders();
-            // headers.add("Location", "/");
-            // headers.add("Content-Type", "text/html");
+        //     // HttpHeaders headers = new HttpHeaders();
+        //     // headers.add("Location", "/");
+        //     // headers.add("Content-Type", "text/html");
 
-            return ResponseEntity.ok()
-                    .body(modelAndView);
-        }
+        //     return ResponseEntity.ok()
+        //             .body(modelAndView);
+        // }
         try {
             fileContent = file.getBytes();
             fileContent1 = file1.getBytes();
@@ -180,14 +180,14 @@ public class TrangChuController {
     }
 
     // Test Xác Thực
-    @GetMapping("/verifyDSs")
-    public String xacthuc() throws Exception {
-        String str = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt";
-        String str1 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\xd.png";
-        String str2 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt";
-        verify(str, str1, str2);
-        return "index";
-    }
+    // @GetMapping("/verifyDSs")
+    // public String xacthuc() throws Exception {
+    //     String str = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt";
+    //     String str1 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\xd.png";
+    //     String str2 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt";
+    //     verify(str, str1, str2);
+    //     return "index";
+    // }
 
     // Xác thực Chữ Ký Số
     @PostMapping("/verifyDS")
@@ -229,27 +229,6 @@ public class TrangChuController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
-
-    // public ResponseEntity<InputStreamResource> downloadPrivate() throws
-    // IOException {
-    // Resource resource =
-    // resourceLoader.getResource("classpath:KySoDSS/Demo/file/privatekey.txt");
-    // InputStream inputStream = new
-    // ByteArrayInputStream(resource.getInputStream().readAllBytes());
-
-    // HttpHeaders headers = new HttpHeaders();
-    // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;
-    // filename=privatekey.txt");
-    // headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-
-    // InputStreamResource inputStreamResource = new
-    // InputStreamResource(inputStream);
-    // return ResponseEntity.ok()
-    // .headers(headers)
-    // .contentLength(resource.contentLength())
-    // .contentType(MediaType.TEXT_PLAIN)
-    // .body(inputStreamResource);
-    // }
     /* Tạo cặp(key pair) key c */
     public static List<byte[]> generateRSAKeyPair() throws Exception {
         SecureRandom sr = new SecureRandom();
@@ -291,6 +270,28 @@ public class TrangChuController {
         sigfos.close();
         return realSig;
     }
+    // ######## Bỏ   ##########
+
+    // public ResponseEntity<InputStreamResource> downloadPrivate() throws
+    // IOException {
+    // Resource resource =
+    // resourceLoader.getResource("classpath:KySoDSS/Demo/file/privatekey.txt");
+    // InputStream inputStream = new
+    // ByteArrayInputStream(resource.getInputStream().readAllBytes());
+
+    // HttpHeaders headers = new HttpHeaders();
+    // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;
+    // filename=privatekey.txt");
+    // headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+
+    // InputStreamResource inputStreamResource = new
+    // InputStreamResource(inputStream);
+    // return ResponseEntity.ok()
+    // .headers(headers)
+    // .contentLength(resource.contentLength())
+    // .contentType(MediaType.TEXT_PLAIN)
+    // .body(inputStreamResource);
+    // }
 
     public boolean verifyy(byte[] PublicKey, byte[] Input, byte[] Signature) throws Exception {
         X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(PublicKey);
