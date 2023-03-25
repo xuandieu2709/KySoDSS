@@ -341,7 +341,7 @@ public class TrangChuController {
         /* Create a Signature object and initialize it with the private key */
         Signature dsa = Signature.getInstance("SHA256withRSA");
         dsa.initSign(priv);
-        /* Update and sign the data */
+        /* Cập nhật và ký dữ liệu */
         FileInputStream fis = new FileInputStream(pathHongDong);
         BufferedInputStream bufin = new BufferedInputStream(fis);
         byte[] buffer = new byte[1024];
