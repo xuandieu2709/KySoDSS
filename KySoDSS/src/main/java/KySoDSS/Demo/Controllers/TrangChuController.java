@@ -240,15 +240,15 @@ public class TrangChuController {
         PublicKey pub = keyPair.getPublic();
 
         byte[] key = pub.getEncoded();
-        FileOutputStream keyfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt");
-        keyfos.write(key);
-        keyfos.close();
+        // FileOutputStream keyfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt");
+        // keyfos.write(key);
+        // keyfos.close();
 
         byte[] privKey = priv.getEncoded();
-        FileOutputStream filePrivate = new FileOutputStream(
-                "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\privatekey.txt");
-        filePrivate.write(privKey);
-        filePrivate.close();
+        // FileOutputStream filePrivate = new FileOutputStream(
+        //         "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\privatekey.txt");
+        // filePrivate.write(privKey);
+        // filePrivate.close();
         List<byte[]> list = new ArrayList<>();
         list.add(key);
         list.add(privKey);
@@ -265,9 +265,9 @@ public class TrangChuController {
         dsa.update(DS);
         byte[] realSig = dsa.sign();
         /* Save the signature in a file */
-        FileOutputStream sigfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt");
-        sigfos.write(realSig);
-        sigfos.close();
+        // FileOutputStream sigfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt");
+        // sigfos.write(realSig);
+        // sigfos.close();
         return realSig;
     }
     // ######## Bỏ   ##########

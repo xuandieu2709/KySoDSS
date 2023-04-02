@@ -55,13 +55,13 @@
                                         <label for="file-to-sign" class="form-label">File cần ký</label>
                                         <input type="file" required name="file1" class="form-control" id="file-to-sign">
                                     </div>
-                                    <div class="d-grid mb-3" style="justify-content: end">
+                                    <div class="mb-3" style="justify-content: end">
                                         <div class="row">
                                             <div class="col-6">
                                                 <h2 class="text-center" th:text="${messss==true?'File private key không hợp lệ!':''}"></h2>
                                             </div>
                                             <div class="col-6">
-                                                <button class="btn btn-primary" type="submit">Tạo file ký số</button>
+                                                <button class="btn btn-primary float-end" type="submit">Tạo file ký số</button>
                                             </div>
                                         </div>
                                     </div>
@@ -71,15 +71,15 @@
                                 <form th:action="@{/digitalsignature}" method="post" enctype="multipart/form-data">
                                     <div class="mb-3">
                                         <label for="pubic-key" class="form-label">Public Key</label>
-                                        <input type="file" name="filePublic" class="form-control" id="pubic-key">
+                                        <input type="file" required name="filePublic" class="form-control" id="pubic-key">
                                     </div>
                                     <div class="mb-3">
                                         <label for="file-to-verify" class="form-label">File cần xác thực</label>
-                                        <input type="file" name="fileRoot" class="form-control" id="file-to-verify">
+                                        <input type="file" required name="fileRoot" class="form-control" id="file-to-verify">
                                     </div>
                                     <div class="mb-3">
                                         <label for="file-signature" class="form-label">File ký số</label>
-                                        <input type="file" name="fileSignature" class="form-control"
+                                        <input type="file" required name="fileSignature" class="form-control"
                                             id="file-signature">
                                     </div>
                                     <div class="d-grid mb-3">
@@ -124,7 +124,10 @@
             data.append("filePublic", filePublic);
             data.append("fileverify", fileverify);
             data.append("fileSignature", filesignature);
-            $.ajax({
+            alert(filePublic)
+            if($("input#pubic-key").val() != '' && $("input#file-to-verify").val() != '' && $("input#file-signature").val() != '')
+            {
+                $.ajax({
                 url: "/verifyDS",
                 method: "post",
                 enctype: 'multipart/form-data',
@@ -145,31 +148,12 @@
                     alert("Vui lòng chọn đúng loại tệp.")
                 }
             });
+            }else{
+                alert("Vui lòng tải lên đầy đủ các tệp trước khi thực hiện.")
+            }
+            
         });
     </script>
 </body>
-<!-- <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyCQeb1CQZvOdroSrMAIyj1nB9ufJLgO5yo",
-      authDomain: "kysodss.firebaseapp.com",
-      projectId: "kysodss",
-      storageBucket: "kysodss.appspot.com",
-      messagingSenderId: "748521255673",
-      appId: "1:748521255673:web:874b12ca3b475ad9e66828",
-      measurementId: "G-V28J6YK20R"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script> -->
 
 </html>
