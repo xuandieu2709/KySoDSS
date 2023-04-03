@@ -42,45 +42,6 @@ public class TrangChuController {
         mv.addObject("messss", null);
         return mv;
     }
-
-    // @GetMapping
-    // public void Dowload(HttpServletResponse response) throws IOException{
-    // generateRSAKeyPair();
-    // try {
-    // File file = ResourceUtils.getFile("classpath:file/publickey.txt");
-    // byte[] data = FileUtils.readFileToByteArray(file);
-    // // Thiết lập thông tin trả về
-    // response.setContentType("application/octet-stream");
-    // response.setHeader("Content-disposition", "attachment; filename=" +
-    // file.getName());
-    // response.setContentLength(data.length);
-    // InputStream inputStream = new BufferedInputStream(new
-    // ByteArrayInputStream(data));
-    // FileCopyUtils.copy(inputStream, response.getOutputStream());
-    // } catch (Exception ex) {
-    // ex.printStackTrace();
-    // }
-    // }
-    // public ResponseEntity<InputStreamResource> downloadPublic() throws
-    // IOException {
-    // Resource resource =
-    // resourceLoader.getResource("classpath:KySoDSS/Demo/file/publickey.txt");
-    // InputStream inputStream = new
-    // ByteArrayInputStream(resource.getInputStream().readAllBytes());
-
-    // HttpHeaders headers = new HttpHeaders();
-    // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;
-    // filename=publickey.txt");
-    // headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-
-    // InputStreamResource inputStreamResource = new
-    // InputStreamResource(inputStream);
-    // return ResponseEntity.ok()
-    // .headers(headers)
-    // .contentLength(resource.contentLength())
-    // .contentType(MediaType.TEXT_PLAIN)
-    // .body(inputStreamResource);
-    // }
     // Tạo cặp khóa và tải xuống
     @GetMapping("/createkey")
     public ResponseEntity<?> downloadFiles() throws Exception {
@@ -109,7 +70,6 @@ public class TrangChuController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDisposition(ContentDisposition.attachment().filename("key.zip").build());
-
         // Return the response entity with the zip file
         return ResponseEntity.ok()
                 .headers(headers)
@@ -119,8 +79,8 @@ public class TrangChuController {
 
     // Tạo File ký số và download
     @PostMapping("/digitalsignature")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
-            @RequestParam("file1") MultipartFile file1) throws Exception {
+    public ResponseEntity<?> uploadFile(@RequestParam("filePrivate") MultipartFile filePrivate,
+            @RequestParam("fileSign") MultipartFile fileSign) throws Exception {
         // Get the file name
         // String fileName = file.getOriginalFilename();
         // String fileName1 = file1.getOriginalFilename();
@@ -129,26 +89,18 @@ public class TrangChuController {
         byte[] fileContent;
         byte[] fileContent1;
         byte[] data = null;
-        // if (CheckPrivateKey(file.getBytes()) == null) {
-        //     ModelAndView modelAndView = new ModelAndView();
-        //     modelAndView.addObject("messss", true);
-        //     modelAndView.setViewName("index");
-
-        //     // HttpHeaders headers = new HttpHeaders();
-        //     // headers.add("Location", "/");
-        //     // headers.add("Content-Type", "text/html");
-
-        //     return ResponseEntity.ok()
-        //             .body(modelAndView);
-        // }
+        if (CheckPrivateKey(filePrivate.getBytes()) == null) {
+            return ResponseEntity.ok()
+                    .body(false);
+        }
         try {
-            fileContent = file.getBytes();
-            fileContent1 = file1.getBytes();
+            fileContent = filePrivate.getBytes();
+            fileContent1 = fileSign.getBytes();
             data = CreateSign1(fileContent, fileContent1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return download(data);
+        return ResponseEntity.ok().body(data);
     }
 
     public PrivateKey CheckPrivateKey(byte[] priv) {
@@ -158,9 +110,9 @@ public class TrangChuController {
             PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(priv);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             pr = kf.generatePrivate(spec);
-            System.out.println("Đây là private key RSA");
+            System.out.println("This is private key RSA");
         } catch (Exception e2) {
-            System.out.println("Không phải là private key RSA");
+            System.out.println("This isn't private key RSA");
         }
         return pr;
     }
@@ -172,33 +124,20 @@ public class TrangChuController {
             X509EncodedKeySpec spec = new X509EncodedKeySpec(pub);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             pr = kf.generatePublic(spec);
-            System.out.println("Đây là public key RSA");
+            System.out.println("This is public key RSA");
         } catch (Exception e1) {
-            System.out.println("Không phải là public key RSA");
+            System.out.println("This isn't public key RSA");
         }
         return pr;
     }
 
-    // Test Xác Thực
-    // @GetMapping("/verifyDSs")
-    // public String xacthuc() throws Exception {
-    //     String str = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt";
-    //     String str1 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\xd.png";
-    //     String str2 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt";
-    //     verify(str, str1, str2);
-    //     return "index";
-    // }
+    
 
     // Xác thực Chữ Ký Số
     @PostMapping("/verifyDS")
     public ModelAndView Digitalsignatureverification(@RequestParam("filePublic") MultipartFile filePublic,
             @RequestParam("fileverify") MultipartFile fileverify,
             @RequestParam("fileSignature") MultipartFile fileSignature) throws Exception {
-        // Get the file name
-        // String fileName = file.getOriginalFilename();
-        // String fileName1 = file1.getOriginalFilename();
-        // System.out.println(fileName+fileName1);
-        // Read the file contents as a byte array
         ModelAndView mv = new ModelAndView();
         boolean check = true;
         byte[] fileContent;
@@ -217,18 +156,54 @@ public class TrangChuController {
         return mv;
     }
 
-    public ResponseEntity<Resource> download(byte[] data) throws IOException {
-        // Assume I already have this byte array
-        ByteArrayResource resource = new ByteArrayResource(data);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=signature.txt");
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(data.length)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+    public boolean verifyy(byte[] PublicKey, byte[] Input, byte[] Signature) throws Exception {
+        X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(PublicKey);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
+
+        boolean verifies = verifyDigitalSignature(Input, Signature, pubKey);
+        System.out.println("Authentication Signature: " + verifies);
+        return verifies;
     }
+
+    public static boolean verifyDigitalSignature(byte[] input, byte[] signatureToVerify, PublicKey key)
+            throws Exception {
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initVerify(key);
+        sig.update(input);
+        return sig.verify(signatureToVerify);
+    }
+
+    public ResponseEntity<?> download(byte[] data) throws IOException {
+        // Assume I already have this byte array
+        // ByteArrayResource resource = new ByteArrayResource(data);
+        // HttpHeaders headers = new HttpHeaders();
+        // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=signature.txt");
+        // headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+        // return ResponseEntity.ok()
+        //         .headers(headers)
+        //         .contentLength(data.length)
+        //         .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        //         .body(resource);
+        return ResponseEntity.ok().body(data);
+    }
+
+    public byte[] CreateSign1(byte[] PrivateKey, byte[] DS) throws Exception {
+        PKCS8EncodedKeySpec pubKeySpec = new PKCS8EncodedKeySpec(PrivateKey);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey priv = keyFactory.generatePrivate(pubKeySpec);
+        /* Create a Signature object and initialize it with the private key */
+        Signature dsa = Signature.getInstance("SHA256withRSA");
+        dsa.initSign(priv);
+        dsa.update(DS);
+        byte[] realSig = dsa.sign();
+        /* Save the signature in a file */
+        // FileOutputStream sigfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt");
+        // sigfos.write(realSig);
+        // sigfos.close();
+        return realSig;
+    }
+
     /* Tạo cặp(key pair) key c */
     public static List<byte[]> generateRSAKeyPair() throws Exception {
         SecureRandom sr = new SecureRandom();
@@ -255,22 +230,21 @@ public class TrangChuController {
         return list;
     }
 
-    public byte[] CreateSign1(byte[] PrivateKey, byte[] DS) throws Exception {
-        PKCS8EncodedKeySpec pubKeySpec = new PKCS8EncodedKeySpec(PrivateKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PrivateKey priv = keyFactory.generatePrivate(pubKeySpec);
-        /* Create a Signature object and initialize it with the private key */
-        Signature dsa = Signature.getInstance("SHA256withRSA");
-        dsa.initSign(priv);
-        dsa.update(DS);
-        byte[] realSig = dsa.sign();
-        /* Save the signature in a file */
-        // FileOutputStream sigfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt");
-        // sigfos.write(realSig);
-        // sigfos.close();
-        return realSig;
-    }
-    // ######## Bỏ   ##########
+
+    // ######## Bỏ  Bỏ Bỏ Bỏ Bỏ Bỏ Bỏ Bỏ Bỏ Bỏ Bỏ  ##########
+
+    // Test Xác Thực
+    // @GetMapping("/verifyDSs")
+    // public String xacthuc() throws Exception {
+    //     String str = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt";
+    //     String str1 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\xd.png";
+    //     String str2 = "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt";
+    //     verify(str, str1, str2);
+    //     return "index";
+    // }
+
+
+
 
     // public ResponseEntity<InputStreamResource> downloadPrivate() throws
     // IOException {
@@ -292,24 +266,6 @@ public class TrangChuController {
     // .contentType(MediaType.TEXT_PLAIN)
     // .body(inputStreamResource);
     // }
-
-    public boolean verifyy(byte[] PublicKey, byte[] Input, byte[] Signature) throws Exception {
-        X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(PublicKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
-
-        boolean verifies = verifyDigitalSignature(Input, Signature, pubKey);
-        System.out.println("Chữ ký số xác thực: " + verifies);
-        return verifies;
-    }
-
-    public static boolean verifyDigitalSignature(byte[] input, byte[] signatureToVerify, PublicKey key)
-            throws Exception {
-        Signature sig = Signature.getInstance("SHA256withRSA");
-        sig.initVerify(key);
-        sig.update(input);
-        return sig.verify(signatureToVerify);
-    }
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -398,4 +354,43 @@ public class TrangChuController {
         files.add(file2);
         return files;
     }
+
+    // @GetMapping
+    // public void Dowload(HttpServletResponse response) throws IOException{
+    // generateRSAKeyPair();
+    // try {
+    // File file = ResourceUtils.getFile("classpath:file/publickey.txt");
+    // byte[] data = FileUtils.readFileToByteArray(file);
+    // // Thiết lập thông tin trả về
+    // response.setContentType("application/octet-stream");
+    // response.setHeader("Content-disposition", "attachment; filename=" +
+    // file.getName());
+    // response.setContentLength(data.length);
+    // InputStream inputStream = new BufferedInputStream(new
+    // ByteArrayInputStream(data));
+    // FileCopyUtils.copy(inputStream, response.getOutputStream());
+    // } catch (Exception ex) {
+    // ex.printStackTrace();
+    // }
+    // }
+    // public ResponseEntity<InputStreamResource> downloadPublic() throws
+    // IOException {
+    // Resource resource =
+    // resourceLoader.getResource("classpath:KySoDSS/Demo/file/publickey.txt");
+    // InputStream inputStream = new
+    // ByteArrayInputStream(resource.getInputStream().readAllBytes());
+
+    // HttpHeaders headers = new HttpHeaders();
+    // headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;
+    // filename=publickey.txt");
+    // headers.add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+
+    // InputStreamResource inputStreamResource = new
+    // InputStreamResource(inputStream);
+    // return ResponseEntity.ok()
+    // .headers(headers)
+    // .contentLength(resource.contentLength())
+    // .contentType(MediaType.TEXT_PLAIN)
+    // .body(inputStreamResource);
+    // }
 }

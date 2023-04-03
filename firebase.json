@@ -1,10 +1,27 @@
 {
   "hosting": {
-    "public": "target",
+    "public": "KySoDSS/target/classes/templates",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ]
+    ],
+    "rewrites": [
+      {
+        "source": "/createkey",
+        "function": "createKey"
+      },
+      {
+        "source": "/digitalsignature",
+        "function": "digitalsignature"
+      },
+      {
+        "source": "/verifyDS",
+        "function": "verifyDS"
+      }
+    ],
+    "functions": {
+      "source": "KySoDSS/target/classes/KySoDSS/Demo/Controllers"
+    }
   }
 }

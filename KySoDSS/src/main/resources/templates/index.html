@@ -13,6 +13,7 @@
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="./FileSaver.js"></script>
 </head>
 
 <body>
@@ -61,14 +62,14 @@
                                                 <h2 class="text-center" th:text="${messss==true?'File private key không hợp lệ!':''}"></h2>
                                             </div>
                                             <div class="col-6">
-                                                <button class="btn btn-primary float-end" type="submit">Tạo file ký số</button>
+                                                <button class="btn btn-primary float-end" type="button" id="btn-sign">Tạo file ký số</button>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
                             </div>
                             <div class="tab-pane fade" id="tabXacThuc">
-                                <form th:action="@{/digitalsignature}" method="post" enctype="multipart/form-data">
+                                <form th:action="@{/verifyDS}" method="post" enctype="multipart/form-data">
                                     <div class="mb-3">
                                         <label for="pubic-key" class="form-label">Public Key</label>
                                         <input type="file" required name="filePublic" class="form-control" id="pubic-key">
@@ -124,7 +125,6 @@
             data.append("filePublic", filePublic);
             data.append("fileverify", fileverify);
             data.append("fileSignature", filesignature);
-            alert(filePublic)
             if($("input#pubic-key").val() != '' && $("input#file-to-verify").val() != '' && $("input#file-signature").val() != '')
             {
                 $.ajax({
@@ -147,6 +147,75 @@
                 error: function (result) {
                     alert("Vui lòng chọn đúng loại tệp.")
                 }
+            });
+            }else{
+                alert("Vui lòng tải lên đầy đủ các tệp trước khi thực hiện.")
+            }
+            
+        });
+
+        //
+
+        $(document).on('click', 'button#btn-sign', function () {
+            var filePrivate = $("input#private-key")[0].files[0];
+            var fileSign = $("input#file-to-sign")[0].files[0];
+            var data = new FormData();
+            data.append("filePrivate", filePrivate);
+            data.append("fileSign", fileSign);
+            if($("input#private-key").val() != '' && $("input#file-to-sign").val())
+            {
+                $.ajax({
+                url: "/digitalsignature",
+                method: "post",
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                data: data,
+                // responseType: 'blob',
+                // success: function (result, status, xhr) {
+                //     var blob = new Blob([result], {type: 'application/octet-stream'});
+                //     var url = URL.createObjectURL(blob);
+                //     var a = document.createElement('a');
+                //     a.href = url;
+                //     a.download = 'signature.txt';
+                //     document.body.appendChild(a);
+                //     a.click();
+                //     document.body.removeChild(a);
+                //     URL.revokeObjectURL(url);
+                // },
+                // error: function (result) {
+                //     alert("Vui lòng chọn đúng loại tệp.")
+                // }
+        //         success: function (result) {
+        //     var blob = new Blob([result], {type: "text/plain;charset=utf-8"});
+        //     saveAs(blob, "signature.txt");
+        //  },
+        //  error: function (result) {
+        //     alert("Vui lòng chọn đúng loại tệp.")
+        //  }
+        xhrFields: {
+                responseType: 'blob' // Nhận file blob
+            },
+            success: function (result) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var arrayBuffer = reader.result;
+                    var byteArray = new Uint8Array(arrayBuffer);
+                    var blob = new Blob([byteArray], {type: "application/octet-stream"});
+                    var url = window.URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = "signature.txt";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                }
+                reader.readAsArrayBuffer(result);
+            },
+            error: function (result) {
+                alert("Vui lòng chọn đúng loại tệp.")
+            }
             });
             }else{
                 alert("Vui lòng tải lên đầy đủ các tệp trước khi thực hiện.")
