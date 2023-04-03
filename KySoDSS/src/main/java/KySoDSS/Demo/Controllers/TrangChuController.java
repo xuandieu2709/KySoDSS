@@ -54,9 +54,9 @@ public class TrangChuController {
         try {
             for (int i = 0; i < list.size(); i++) {
                 if (i == 0) {
-                    zos.putNextEntry(new ZipEntry("publickey.txt"));
+                    zos.putNextEntry(new ZipEntry("publickey"));
                 } else {
-                    zos.putNextEntry(new ZipEntry("private.txt"));
+                    zos.putNextEntry(new ZipEntry("private"));
                 }
                 zos.write(list.get(i));
                 zos.closeEntry();
@@ -204,7 +204,7 @@ public class TrangChuController {
         return realSig;
     }
 
-    /* Tạo cặp(key pair) key c */
+    /* Tạo cặp khóa(key pair)*/
     public static List<byte[]> generateRSAKeyPair() throws Exception {
         SecureRandom sr = new SecureRandom();
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -321,28 +321,28 @@ public class TrangChuController {
 
     // new func
 
-    public void verify(String pathPublicKey, String pathHopDong, String pathSignature) throws Exception {
-        /* import encoded public key */
-        FileInputStream keyfis = new FileInputStream(pathPublicKey);
-        byte[] encKey = new byte[keyfis.available()];
-        keyfis.read(encKey);
-        keyfis.close();
-        X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(encKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
+    // public void verify(String pathPublicKey, String pathHopDong, String pathSignature) throws Exception {
+    //     /* import encoded public key */
+    //     FileInputStream keyfis = new FileInputStream(pathPublicKey);
+    //     byte[] encKey = new byte[keyfis.available()];
+    //     keyfis.read(encKey);
+    //     keyfis.close();
+    //     X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(encKey);
+    //     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    //     PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
 
-        boolean verifies = verifyDigitalSignature(convertFileToByteArray(new File(pathHopDong)),
-                convertFileToByteArray(new File(pathSignature)), pubKey);
-        System.out.println("Chữ ký số xác thực: " + verifies);
-    }
+    //     boolean verifies = verifyDigitalSignature(convertFileToByteArray(new File(pathHopDong)),
+    //             convertFileToByteArray(new File(pathSignature)), pubKey);
+    //     System.out.println("Chữ ký số xác thực: " + verifies);
+    // }
 
-    public static byte[] convertFileToByteArray(File file) throws IOException {
-        FileInputStream fis = new FileInputStream(file);
-        byte[] byteArray = new byte[(int) file.length()];
-        fis.read(byteArray);
-        fis.close();
-        return byteArray;
-    }
+    // public static byte[] convertFileToByteArray(File file) throws IOException {
+    //     FileInputStream fis = new FileInputStream(file);
+    //     byte[] byteArray = new byte[(int) file.length()];
+    //     fis.read(byteArray);
+    //     fis.close();
+    //     return byteArray;
+    // }
 
     private List<File> getFilesToDownload() {
         // Create a list of files to download
