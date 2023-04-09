@@ -18,6 +18,7 @@
 
 <body>
     <div class="container mt-5">
+        <h2 class="text-center mb-4">Quy trình khởi tạo và xác thực chữ ký số</h2>
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
@@ -83,6 +84,11 @@
                                         <input type="file" required name="fileSignature" class="form-control"
                                             id="file-signature">
                                     </div>
+                                    <!-- <div class="mb-3">
+                                        <label for="file-signature" class="form-label">File Hợp đồng</label>
+                                        <input type="file" required name="fileSignature" class="form-control"
+                                            id="file-hopdong">
+                                    </div> -->
                                     <div class="d-grid mb-3">
                                         <div class="row">
                                             <div class="col-6">
@@ -121,10 +127,12 @@
             var filePublic = $("input#pubic-key")[0].files[0];
             var fileverify = $("input#file-to-verify")[0].files[0];
             var filesignature = $("input#file-signature")[0].files[0];
+            // var fileHD = $("input#file-hopdong")[0].files[0];
             var data = new FormData();
             data.append("filePublic", filePublic);
             data.append("fileverify", fileverify);
             data.append("fileSignature", filesignature);
+            // data.append("fileHD", fileHD);
             if($("input#pubic-key").val() != '' && $("input#file-to-verify").val() != '' && $("input#file-signature").val() != '')
             {
                 $.ajax({
@@ -134,19 +142,36 @@
                 processData: false,
                 contentType: false,
                 data: data,
-                success: function (result) {
-                    // if (result === "oke") {
-                    //     $("h2#mess").text("Xác thực thành công!");
-                    //     $("h2#mess").addClass('text-success');
-                    // } else {
-                    //     $("h2#mess").text("Xác thực thất bại.");
-                    //     $("h2#mess").addClass('text-danger');
-                    // }
-                    $("h2#mess").replaceWith(result);
-                },
-                error: function (result) {
-                    alert("Vui lòng chọn đúng loại tệp.")
+        xhrFields: {
+                responseType: 'blob' // Nhận file blob
+            },
+            success: function (result) {
+                if(result.size > 0)
+                {
+                $("h2#mess").text("Xác thực thành công.").css('color','green');
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var arrayBuffer = reader.result;
+                    var byteArray = new Uint8Array(arrayBuffer);
+                    var blob = new Blob([byteArray], {type: "application/octet-stream"});
+                    var url = window.URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = "XacThucHopDongThanhCong.docx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
                 }
+                reader.readAsArrayBuffer(result);
+                }else{
+                    $("h2#mess").text("Xác thực thất bại.").css('color','red');;
+                }
+                
+            },
+            error: function (result) {
+                alert("Vui lòng chọn đúng loại tệp.")
+            }
             });
             }else{
                 alert("Vui lòng tải lên đầy đủ các tệp trước khi thực hiện.")
