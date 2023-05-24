@@ -89,11 +89,6 @@ public class TrangChuController {
     @PostMapping("/digitalsignature")
     public ResponseEntity<?> uploadFile(@RequestParam("filePrivate") MultipartFile filePrivate,
             @RequestParam("fileSign") MultipartFile fileSign) throws Exception {
-        // Get the file name
-        // String fileName = file.getOriginalFilename();
-        // String fileName1 = file1.getOriginalFilename();
-        // System.out.println(fileName+fileName1);
-        // Read the file contents as a byte array
         byte[] fileContent;
         byte[] fileContent1;
         byte[] data = null;
@@ -179,7 +174,7 @@ public class TrangChuController {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
         boolean verifies = verifyDigitalSignature(Input, Signature, pubKey);
-        System.out.println("Authentication Signature: " + verifies);
+        // System.out.println("Authentication Signature: " + verifies);
         return verifies;
     }
 
@@ -195,15 +190,10 @@ public class TrangChuController {
         PKCS8EncodedKeySpec pubKeySpec = new PKCS8EncodedKeySpec(PrivateKey);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey priv = keyFactory.generatePrivate(pubKeySpec);
-        /* Create a Signature object and initialize it with the private key */
         Signature dsa = Signature.getInstance("SHA256withRSA");
         dsa.initSign(priv);
         dsa.update(DS);
         byte[] realSig = dsa.sign();
-        /* Save the signature in a file */
-        // FileOutputStream sigfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\signature.txt");
-        // sigfos.write(realSig);
-        // sigfos.close();
         return realSig;
     }
 
@@ -216,20 +206,15 @@ public class TrangChuController {
         PrivateKey priv = keyPair.getPrivate();
         PublicKey pub = keyPair.getPublic();
         byte[] key = pub.getEncoded();
-        // FileOutputStream keyfos = new FileOutputStream("KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\publickey.txt");
-        // keyfos.write(key);
-        // keyfos.close();
-
         byte[] privKey = priv.getEncoded();
-        // FileOutputStream filePrivate = new FileOutputStream(
-        // "KySoDSS\\src\\main\\java\\KySoDSS\\Demo\\file\\privatekey.txt");
-        // filePrivate.write(privKey);
-        // filePrivate.close();
         List<byte[]> list = new ArrayList<>();
         list.add(key);
         list.add(privKey);
         return list;
     }
+
+
+
     // Tạo file và lưu
     public byte[] createFile(byte[] Moc, byte[] Hopdong) throws InvalidFormatException {
         byte[] data = null;
